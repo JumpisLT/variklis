@@ -1,55 +1,226 @@
 <!DOCTYPE html>
-<html>
+<html lang="lt">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ESP32 Variklio Valdymas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Variklio Valdymo Pultas</title>
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 20px; background: #f4f4f4; }
-        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: inline-block; }
-        input { width: 60px; padding: 10px; margin: 10px; border-radius: 5px; border: 1px solid #ccc; }
-        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        button:disabled { background: #ccc; }
-        .status { margin: 10px; color: #666; }
+        :root {
+            --primary: #007bff;
+            --bg: #f0f2f5;
+            --card: #ffffff;
+            --text: #333;
+        }
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            background: var(--bg); 
+            color: var(--text);
+            display: flex; 
+            justify-content: center; 
+            padding: 20px;
+            margin: 0;
+        }
+        .container { 
+            background: var(--card); 
+            padding: 25px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            width: 100%; 
+            max-width: 400px; 
+        }
+        h2 { text-align: center; margin-top: 0; color: #1a1a1a; }
+        
+        .status-box { 
+            padding: 12px; 
+            border-radius: 12px; 
+            text-align: center; 
+            margin-bottom: 20px; 
+            font-weight: bold; 
+            transition: 0.3s;
+            background: #ffebee; 
+            color: #c62828; 
+        }
+        .status-box.online { 
+            background: #e8f5e9; 
+            color: #2e7d32; 
+        }
+
+        .control-group { 
+            margin-bottom: 15px; 
+            padding: 15px; 
+            border: 1px solid #eee; 
+            border-radius: 15px; 
+            background: #fafafa;
+        }
+        label { 
+            display: block; 
+            margin-bottom: 10px; 
+            font-weight: 600; 
+            font-size: 14px;
+            color: #666; 
+        }
+        
+        input[type="range"] { 
+            width: 100%; 
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+            margin-bottom: 15px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .val-display { 
+            float: right; 
+            color: var(--primary); 
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            font-weight: 600;
+            transition: 0.2s; 
+        }
+        .btn-connect { 
+            background: #333; 
+            color: white; 
+            margin-bottom: 20px; 
+        }
+        .btn-connect:active { transform: scale(0.98); }
+        
+        .btn-save { 
+            background: var(--primary); 
+            color: white; 
+        }
+        .btn-save:hover { background: #0056b3; }
+        .btn-save:disabled { background: #ccc; cursor: not-allowed; }
+
+        .hint {
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h2>Variklio Nustatymai</h2>
-        <div id="status" class="status">Būsena: Neprisijungta</div>
-        <button id="connectBtn">Prisijungti per Bluetooth</button>
-        <hr>
-        <div>Lėtas (%): <input type="number" id="sVal" value="30"> <button onclick="send('S', 'sVal')">Išsaugoti</button></div>
-        <div>Vidutinis (%): <input type="number" id="mVal" value="60"> <button onclick="send('M', 'mVal')">Išsaugoti</button></div>
-        <div>Greitas (%): <input type="number" id="fVal" value="95"> <button onclick="send('F', 'fVal')">Išsaugoti</button></div>
+
+<div class="container">
+    <h2>Valdiklio Nustatymai</h2>
+    <div id="status" class="status-box">Neprisijungta</div>
+    <button id="connectBtn" class="btn-connect">Prisijungti per Bluetooth</button>
+
+    <div class="control-group">
+        <label>LĖTAS GREITIS <span id="sDisp" class="val-display">--%</span></label>
+        <input type="range" id="sRange" min="0" max="100" value="30" oninput="dUpdate('sDisp', this.value)">
+        <button id="sBtn" class="btn-save" onclick="send('S', 'sRange')" disabled>Išsaugoti</button>
     </div>
 
-    <script>
-        let device, characteristic;
-        const serviceUuid = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
-        const charUuid = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
+    <div class="control-group">
+        <label>VIDUTINIS GREITIS <span id="mDisp" class="val-display">--%</span></label>
+        <input type="range" id="mRange" min="0" max="100" value="60" oninput="dUpdate('mDisp', this.value)">
+        <button id="mBtn" class="btn-save" onclick="send('M', 'mRange')" disabled>Išsaugoti</button>
+    </div>
 
-        document.getElementById('connectBtn').onclick = async () => {
-            try {
-                device = await navigator.bluetooth.requestDevice({
-                    filters: [{ name: 'Variklio_Valdiklis' }],
-                    optionalServices: [serviceUuid]
-                });
-                const server = await device.gatt.connect();
-                const service = await server.getPrimaryService(serviceUuid);
-                characteristic = await service.getCharacteristic(charUuid);
-                document.getElementById('status').innerText = "Būsena: PRISIJUNGTA";
-                document.getElementById('connectBtn').disabled = true;
-            } catch (error) { console.log(error); }
-        };
+    <div class="control-group">
+        <label>MAKSIMALUS GREITIS <span id="fDisp" class="val-display">--%</span></label>
+        <input type="range" id="fRange" min="0" max="100" value="95" oninput="dUpdate('fDisp', this.value)">
+        <button id="fBtn" class="btn-save" onclick="send('F', 'fRange')" disabled>Išsaugoti</button>
+    </div>
+    
+    <p class="hint">Prisijungus bus nuskaityti esami nustatymai</p>
+</div>
 
-        async function send(prefix, inputId) {
-            if (!characteristic) return alert("Pirmiausia prisijunkite!");
-            const val = document.getElementById(inputId).value;
-            const data = new TextEncoder().encode(prefix + val);
-            await characteristic.writeValue(data);
-            alert("Nustatymas nusiųstas: " + prefix + val + "%");
+<script>
+    let device, characteristic;
+    // UUID privalo sutapti su ESP32 kodu
+    const serviceUuid = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
+    const charUuid = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
+
+    function dUpdate(id, val) { 
+        document.getElementById(id).innerText = val + "%"; 
+    }
+
+    document.getElementById('connectBtn').onclick = async () => {
+        try {
+            document.getElementById('status').innerText = "Ieškoma...";
+            device = await navigator.bluetooth.requestDevice({
+                filters: [{ name: 'Variklio_Valdiklis' }],
+                optionalServices: [serviceUuid]
+            });
+
+            const server = await device.gatt.connect();
+            const service = await server.getPrimaryService(serviceUuid);
+            characteristic = await service.getCharacteristic(charUuid);
+            
+            // Atnaujiname sąsają
+            const s = document.getElementById('status');
+            s.innerText = "PRISIJUNGTA";
+            s.classList.add('online');
+            document.getElementById('connectBtn').style.display = 'none';
+            
+            // Atitinkame išsaugojimo mygtukus
+            document.querySelectorAll('.btn-save').forEach(btn => btn.disabled = false);
+
+            // Nuskaitome esamus nustatymus iš ESP32
+            await readSettings();
+
+        } catch (error) {
+            console.error(error);
+            document.getElementById('status').innerText = "Klaida prisijungiant";
         }
-    </script>
+    };
+
+    async function readSettings() {
+        if (!characteristic) return;
+        try {
+            const value = await characteristic.readValue();
+            const decoder = new TextDecoder('utf-8');
+            const dataString = decoder.decode(value); 
+            
+            console.log("Gauti nustatymai: " + dataString);
+            
+            // Formatas iš ESP32: "S30,M60,F95"
+            const parts = dataString.split(',');
+            parts.forEach(part => {
+                const type = part.charAt(0);
+                const val = part.substring(1);
+                if (type === 'S') { document.getElementById('sRange').value = val; dUpdate('sDisp', val); }
+                if (type === 'M') { document.getElementById('mRange').value = val; dUpdate('mDisp', val); }
+                if (type === 'F') { document.getElementById('fRange').value = val; dUpdate('fDisp', val); }
+            });
+        } catch (error) {
+            console.error("Nuskaitymo klaida:", error);
+        }
+    }
+
+    async function send(prefix, inputId) {
+        if (!characteristic) return;
+        const val = document.getElementById(inputId).value;
+        const data = new TextEncoder().encode(prefix + val);
+        try {
+            await characteristic.writeValue(data);
+            console.log("Išsiųsta: " + prefix + val);
+            alert("Nustatymas išsaugotas!");
+        } catch (e) {
+            alert("Nepavyko išsaugoti. Bandykite dar kartą.");
+        }
+    }
+</script>
+
 </body>
 </html>
