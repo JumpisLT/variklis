@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ESP32 Variklio Valdymas</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 20px; background: #f4f4f4; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: inline-block; }
+        input { width: 60px; padding: 10px; margin: 10px; border-radius: 5px; border: 1px solid #ccc; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:disabled { background: #ccc; }
+        .status { margin: 10px; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Variklio Nustatymai</h2>
+        <div id="status" class="status">Būsena: Neprisijungta</div>
+        <button id="connectBtn">Prisijungti per Bluetooth</button>
+        <hr>
+        <div>Lėtas (%): <input type="number" id="sVal" value="30"> <button onclick="send('S', 'sVal')">Išsaugoti</button></div>
+        <div>Vidutinis (%): <input type="number" id="mVal" value="60"> <button onclick="send('M', 'mVal')">Išsaugoti</button></div>
+        <div>Greitas (%): <input type="number" id="fVal" value="95"> <button onclick="send('F', 'fVal')">Išsaugoti</button></div>
+    </div>
+
+    <script>
+        let device, characteristic;
+        const serviceUuid = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
+        const charUuid = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
+
+        document.getElementById('connectBtn').onclick = async () => {
+            try {
+                device = await navigator.bluetooth.requestDevice({
+                    filters: [{ name: 'Variklio_Valdiklis' }],
+                    optionalServices: [serviceUuid]
+                });
+                const server = await device.gatt.connect();
+                const service = await server.getPrimaryService(serviceUuid);
+                characteristic = await service.getCharacteristic(charUuid);
+                document.getElementById('status').innerText = "Būsena: PRISIJUNGTA";
+                document.getElementById('connectBtn').disabled = true;
+            } catch (error) { console.log(error); }
+        };
+
+        async function send(prefix, inputId) {
+            if (!characteristic) return alert("Pirmiausia prisijunkite!");
+            const val = document.getElementById(inputId).value;
+            const data = new TextEncoder().encode(prefix + val);
+            await characteristic.writeValue(data);
+            alert("Nustatymas nusiųstas: " + prefix + val + "%");
+        }
+    </script>
+</body>
+</html>
