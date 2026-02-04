@@ -1,153 +1,188 @@
 <!DOCTYPE html>
 <html lang="lt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Variklio Valdymo Pultas</title>
-    <style>
-        :root {
-            --primary: #007bff;
-            --bg: #f0f2f5;
-            --card: #ffffff;
-            --text: #333;
-        }
-        body { 
-            font-family: 'Segoe UI', system-ui, sans-serif; 
-            background: var(--bg); 
-            color: var(--text);
-            display: flex; 
-            justify-content: center; 
-            padding: 20px;
-            margin: 0;
-        }
-        .container { 
-            background: var(--card); 
-            padding: 25px; 
-            border-radius: 20px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
-            width: 100%; 
-            max-width: 400px; 
-            position: relative;
-        }
-        h2 { text-align: center; margin-top: 0; color: #1a1a1a; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Variklio Valdymo Pultas</title>
 
-        .lang-switch {
-            position: absolute;
-            top: 14px;
-            right: 14px;
-            display: flex;
-            gap: 8px;
-        }
-        .flag-btn {
-            border: 1px solid #e6e6e6;
-            background: #fff;
-            border-radius: 12px;
-            padding: 6px 10px;
-            cursor: pointer;
-            font-size: 18px;
-            line-height: 1;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.06);
-            transition: 0.15s;
-        }
-        .flag-btn:active { transform: scale(0.98); }
-        .flag-btn.active {
-            border-color: var(--primary);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.10);
-        }
-        
-        .status-box { 
-            padding: 12px; 
-            border-radius: 12px; 
-            text-align: center; 
-            margin-bottom: 20px; 
-            font-weight: bold; 
-            transition: 0.3s;
-            background: #ffebee; 
-            color: #c62828; 
-        }
-        .status-box.online { 
-            background: #e8f5e9; 
-            color: #2e7d32; 
-        }
+  <style>
+    :root {
+      --primary: #007bff;
+      --bg: #f0f2f5;
+      --card: #ffffff;
+      --text: #333;
+    }
 
-        .control-group { 
-            margin-bottom: 15px; 
-            padding: 15px; 
-            border: 1px solid #eee; 
-            border-radius: 15px; 
-            background: #fafafa;
-        }
-        label { 
-            display: block; 
-            margin-bottom: 10px; 
-            font-weight: 600; 
-            font-size: 14px;
-            color: #666; 
-        }
-        
-        input[type="range"] { 
-            width: 100%; 
-            height: 8px;
-            border-radius: 5px;
-            background: #ddd;
-            outline: none;
-            -webkit-appearance: none;
-            margin-bottom: 15px;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            background: var(--primary);
-            border-radius: 50%;
-            cursor: pointer;
-        }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+      margin: 0;
+    }
 
-        .val-display { 
-            float: right; 
-            color: var(--primary); 
-            font-weight: bold;
-            font-size: 18px;
-        }
+    .container {
+      background: var(--card);
+      padding: 60px 25px 25px 25px; /* vieta vėliavoms viršuje */
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      position: relative;
+      overflow: visible;
+    }
 
-        button { 
-            width: 100%; 
-            padding: 12px; 
-            border: none; 
-            border-radius: 10px; 
-            cursor: pointer; 
-            font-size: 16px; 
-            font-weight: 600;
-            transition: 0.2s; 
-        }
-        .btn-connect { 
-            background: #333; 
-            color: white; 
-            margin-bottom: 20px; 
-        }
-        .btn-connect:active { transform: scale(0.98); }
-        
-        .btn-save { 
-            background: var(--primary); 
-            color: white; 
-        }
-        .btn-save:hover { background: #0056b3; }
-        .btn-save:disabled { background: #ccc; cursor: not-allowed; }
+    h2 {
+      text-align: center;
+      margin-top: 0;
+      color: #1a1a1a;
+    }
 
-        .hint {
-            font-size: 12px;
-            color: #999;
-            text-align: center;
-            margin-top: 10px;
-        }
-    </style>
+    /* --- Kalbos perjungimas --- */
+    .lang-switch {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      gap: 10px;
+      z-index: 9999;
+      align-items: center;
+    }
+
+    .flag-img {
+      width: 38px;
+      height: 26px;
+      object-fit: cover;
+      cursor: pointer;
+      border-radius: 7px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+      transition: 0.15s;
+      border: 2px solid transparent;
+      background: #fff;
+    }
+
+    .flag-img:hover {
+      transform: scale(1.06);
+    }
+
+    .flag-img.active {
+      border-color: var(--primary);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+    }
+
+    /* --- Status --- */
+    .status-box {
+      padding: 12px;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: bold;
+      transition: 0.3s;
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    .status-box.online {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    /* --- Controls --- */
+    .control-group {
+      margin-bottom: 15px;
+      padding: 15px;
+      border: 1px solid #eee;
+      border-radius: 15px;
+      background: #fafafa;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      color: #666;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      border-radius: 5px;
+      background: #ddd;
+      outline: none;
+      -webkit-appearance: none;
+      margin-bottom: 15px;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      background: var(--primary);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .val-display {
+      float: right;
+      color: var(--primary);
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    .btn-connect {
+      background: #333;
+      color: white;
+      margin-bottom: 20px;
+    }
+
+    .btn-connect:active {
+      transform: scale(0.98);
+    }
+
+    .btn-save {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-save:hover {
+      background: #0056b3;
+    }
+
+    .btn-save:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: #999;
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
 </head>
-<body>
 
-<div class="container">
+<body>
+  <div class="container">
+    <!-- Vėliavos kaip paveiksliukai -->
     <div class="lang-switch" aria-label="Language switch">
-        <button class="flag-btn" id="btnLT" title="Lietuvių" aria-label="Lietuvių">🇱🇹</button>
-        <button class="flag-btn" id="btnEN" title="English" aria-label="English">🇬🇧</button>
+      <!-- SVARBU: šie failai turi būti šalia HTML: lt.png ir gb.png -->
+      <img src="lt.png" id="btnLT" class="flag-img" alt="Lietuvių" title="Lietuvių" />
+      <img src="gb.png" id="btnEN" class="flag-img" alt="English" title="English" />
     </div>
 
     <h2 data-i18n="title">Valdiklio Nustatymai</h2>
@@ -155,96 +190,107 @@
     <button id="connectBtn" class="btn-connect" data-i18n="connect">Prisijungti per Bluetooth</button>
 
     <div class="control-group">
-        <label><span data-i18n="slow_speed">LĖTAS GREITIS</span> <span id="sDisp" class="val-display">--%</span></label>
-        <input type="range" id="sRange" min="0" max="100" value="30" oninput="dUpdate('sDisp', this.value)">
-        <button id="sBtn" class="btn-save" onclick="send('S', 'sRange')" disabled data-i18n="save">Išsaugoti</button>
+      <label>
+        <span data-i18n="slow_speed">LĖTAS GREITIS</span>
+        <span id="sDisp" class="val-display">--%</span>
+      </label>
+      <input type="range" id="sRange" min="0" max="100" value="30" oninput="dUpdate('sDisp', this.value)" />
+      <button id="sBtn" class="btn-save" onclick="send('S', 'sRange')" disabled data-i18n="save">Išsaugoti</button>
     </div>
 
     <div class="control-group">
-        <label><span data-i18n="medium_speed">VIDUTINIS GREITIS</span> <span id="mDisp" class="val-display">--%</span></label>
-        <input type="range" id="mRange" min="0" max="100" value="60" oninput="dUpdate('mDisp', this.value)">
-        <button id="mBtn" class="btn-save" onclick="send('M', 'mRange')" disabled data-i18n="save">Išsaugoti</button>
+      <label>
+        <span data-i18n="medium_speed">VIDUTINIS GREITIS</span>
+        <span id="mDisp" class="val-display">--%</span>
+      </label>
+      <input type="range" id="mRange" min="0" max="100" value="60" oninput="dUpdate('mDisp', this.value)" />
+      <button id="mBtn" class="btn-save" onclick="send('M', 'mRange')" disabled data-i18n="save">Išsaugoti</button>
     </div>
 
     <div class="control-group">
-        <label><span data-i18n="max_speed">MAKSIMALUS GREITIS</span> <span id="fDisp" class="val-display">--%</span></label>
-        <input type="range" id="fRange" min="0" max="100" value="95" oninput="dUpdate('fDisp', this.value)">
-        <button id="fBtn" class="btn-save" onclick="send('F', 'fRange')" disabled data-i18n="save">Išsaugoti</button>
+      <label>
+        <span data-i18n="max_speed">MAKSIMALUS GREITIS</span>
+        <span id="fDisp" class="val-display">--%</span>
+      </label>
+      <input type="range" id="fRange" min="0" max="100" value="95" oninput="dUpdate('fDisp', this.value)" />
+      <button id="fBtn" class="btn-save" onclick="send('F', 'fRange')" disabled data-i18n="save">Išsaugoti</button>
     </div>
-    
+
     <p class="hint" data-i18n="hint">Prisijungus bus nuskaityti esami nustatymai</p>
-</div>
+  </div>
 
-<script>
+  <script>
     // --- i18n ---
     const I18N = {
-        lt: {
-            title: "Valdiklio Nustatymai",
-            status_disconnected: "Neprisijungta",
-            status_searching: "Ieškoma...",
-            status_connected: "PRISIJUNGTA",
-            status_connect_error: "Klaida prisijungiant",
-            connect: "Prisijungti per Bluetooth",
-            slow_speed: "LĖTAS GREITIS",
-            medium_speed: "VIDUTINIS GREITIS",
-            max_speed: "MAKSIMALUS GREITIS",
-            save: "Išsaugoti",
-            hint: "Prisijungus bus nuskaityti esami nustatymai",
-            alert_saved: "Nustatymas išsaugotas!",
-            alert_save_failed: "Nepavyko išsaugoti. Bandykite dar kartą.",
-            read_error: "Nuskaitymo klaida:"
-        },
-        en: {
-            title: "Controller Settings",
-            status_disconnected: "Disconnected",
-            status_searching: "Searching...",
-            status_connected: "CONNECTED",
-            status_connect_error: "Connection error",
-            connect: "Connect via Bluetooth",
-            slow_speed: "SLOW SPEED",
-            medium_speed: "MEDIUM SPEED",
-            max_speed: "MAX SPEED",
-            save: "Save",
-            hint: "After connecting, current settings will be read",
-            alert_saved: "Setting saved!",
-            alert_save_failed: "Could not save. Please try again.",
-            read_error: "Read error:"
-        }
+      lt: {
+        title: "Valdiklio Nustatymai",
+        status_disconnected: "Neprisijungta",
+        status_searching: "Ieškoma...",
+        status_connected: "PRISIJUNGTA",
+        status_connect_error: "Klaida prisijungiant",
+        connect: "Prisijungti per Bluetooth",
+        slow_speed: "LĖTAS GREITIS",
+        medium_speed: "VIDUTINIS GREITIS",
+        max_speed: "MAKSIMALUS GREITIS",
+        save: "Išsaugoti",
+        hint: "Prisijungus bus nuskaityti esami nustatymai",
+        alert_saved: "Nustatymas išsaugotas!",
+        alert_save_failed: "Nepavyko išsaugoti. Bandykite dar kartą.",
+        read_error: "Nuskaitymo klaida:"
+      },
+      en: {
+        title: "Controller Settings",
+        status_disconnected: "Disconnected",
+        status_searching: "Searching...",
+        status_connected: "CONNECTED",
+        status_connect_error: "Connection error",
+        connect: "Connect via Bluetooth",
+        slow_speed: "SLOW SPEED",
+        medium_speed: "MEDIUM SPEED",
+        max_speed: "MAX SPEED",
+        save: "Save",
+        hint: "After connecting, current settings will be read",
+        alert_saved: "Setting saved!",
+        alert_save_failed: "Could not save. Please try again.",
+        read_error: "Read error:"
+      }
     };
 
     let currentLang = "lt";
 
     function t(key) {
-        return (I18N[currentLang] && I18N[currentLang][key]) ? I18N[currentLang][key] : key;
+      return (I18N[currentLang] && I18N[currentLang][key]) ? I18N[currentLang][key] : key;
     }
 
     function applyTranslations() {
-        document.querySelectorAll("[data-i18n]").forEach(el => {
-            const key = el.getAttribute("data-i18n");
-            el.textContent = t(key);
-        });
-        document.documentElement.lang = currentLang;
-        document.getElementById("btnLT").classList.toggle("active", currentLang === "lt");
-        document.getElementById("btnEN").classList.toggle("active", currentLang === "en");
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        el.textContent = t(key);
+      });
+
+      document.documentElement.lang = currentLang;
+
+      document.getElementById("btnLT").classList.toggle("active", currentLang === "lt");
+      document.getElementById("btnEN").classList.toggle("active", currentLang === "en");
     }
 
     function setLanguage(lang) {
-        currentLang = (lang === "en") ? "en" : "lt";
-        localStorage.setItem("lang", currentLang);
+      currentLang = (lang === "en") ? "en" : "lt";
+      localStorage.setItem("lang", currentLang);
 
-        // If status is currently one of our known states, re-translate it
-        const statusEl = document.getElementById("status");
-        const raw = statusEl.getAttribute("data-status-key");
-        if (raw) statusEl.textContent = t(raw);
+      // jei statusas turi raktą, jį irgi išverčiam
+      const statusEl = document.getElementById("status");
+      const rawKey = statusEl.getAttribute("data-status-key");
+      if (rawKey) statusEl.textContent = t(rawKey);
 
-        applyTranslations();
+      applyTranslations();
     }
 
     // Load saved language (default lt)
     (function initLanguage() {
-        const saved = localStorage.getItem("lang");
-        if (saved === "en" || saved === "lt") currentLang = saved;
-        applyTranslations();
+      const saved = localStorage.getItem("lang");
+      if (saved === "en" || saved === "lt") currentLang = saved;
+      applyTranslations();
     })();
 
     document.getElementById("btnLT").addEventListener("click", () => setLanguage("lt"));
@@ -256,82 +302,76 @@
     const serviceUuid = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
     const charUuid = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
 
-    function dUpdate(id, val) { 
-        document.getElementById(id).innerText = val + "%"; 
+    function dUpdate(id, val) {
+      document.getElementById(id).innerText = val + "%";
     }
 
-    function setStatus(key, online=false) {
-        const s = document.getElementById('status');
-        s.setAttribute("data-status-key", key);
-        s.innerText = t(key);
-        s.classList.toggle('online', !!online);
+    function setStatus(key, online = false) {
+      const s = document.getElementById("status");
+      s.setAttribute("data-status-key", key);
+      s.innerText = t(key);
+      s.classList.toggle("online", !!online);
     }
 
-    document.getElementById('connectBtn').onclick = async () => {
-        try {
-            setStatus("status_searching", false);
+    document.getElementById("connectBtn").onclick = async () => {
+      try {
+        setStatus("status_searching", false);
 
-            device = await navigator.bluetooth.requestDevice({
-                filters: [{ name: 'Variklio_Valdiklis' }],
-                optionalServices: [serviceUuid]
-            });
+        device = await navigator.bluetooth.requestDevice({
+          filters: [{ name: "Variklio_Valdiklis" }],
+          optionalServices: [serviceUuid]
+        });
 
-            const server = await device.gatt.connect();
-            const service = await server.getPrimaryService(serviceUuid);
-            characteristic = await service.getCharacteristic(charUuid);
-            
-            // Atnaujiname sąsają
-            setStatus("status_connected", true);
-            document.getElementById('connectBtn').style.display = 'none';
-            
-            // Atitinkame išsaugojimo mygtukus
-            document.querySelectorAll('.btn-save').forEach(btn => btn.disabled = false);
+        const server = await device.gatt.connect();
+        const service = await server.getPrimaryService(serviceUuid);
+        characteristic = await service.getCharacteristic(charUuid);
 
-            // Nuskaitome esamus nustatymus iš ESP32
-            await readSettings();
+        setStatus("status_connected", true);
+        document.getElementById("connectBtn").style.display = "none";
+        document.querySelectorAll(".btn-save").forEach(btn => btn.disabled = false);
 
-        } catch (error) {
-            console.error(error);
-            setStatus("status_connect_error", false);
-        }
+        await readSettings();
+      } catch (error) {
+        console.error(error);
+        setStatus("status_connect_error", false);
+      }
     };
 
     async function readSettings() {
-        if (!characteristic) return;
-        try {
-            const value = await characteristic.readValue();
-            const decoder = new TextDecoder('utf-8');
-            const dataString = decoder.decode(value); 
-            
-            console.log("Gauti nustatymai: " + dataString);
-            
-            // Formatas iš ESP32: "S30,M60,F95"
-            const parts = dataString.split(',');
-            parts.forEach(part => {
-                const type = part.charAt(0);
-                const val = part.substring(1);
-                if (type === 'S') { document.getElementById('sRange').value = val; dUpdate('sDisp', val); }
-                if (type === 'M') { document.getElementById('mRange').value = val; dUpdate('mDisp', val); }
-                if (type === 'F') { document.getElementById('fRange').value = val; dUpdate('fDisp', val); }
-            });
-        } catch (error) {
-            console.error(t("read_error"), error);
-        }
+      if (!characteristic) return;
+      try {
+        const value = await characteristic.readValue();
+        const decoder = new TextDecoder("utf-8");
+        const dataString = decoder.decode(value);
+
+        console.log("Gauti nustatymai: " + dataString);
+
+        // Formatas iš ESP32: "S30,M60,F95"
+        const parts = dataString.split(",");
+        parts.forEach(part => {
+          const type = part.charAt(0);
+          const val = part.substring(1);
+          if (type === "S") { document.getElementById("sRange").value = val; dUpdate("sDisp", val); }
+          if (type === "M") { document.getElementById("mRange").value = val; dUpdate("mDisp", val); }
+          if (type === "F") { document.getElementById("fRange").value = val; dUpdate("fDisp", val); }
+        });
+      } catch (error) {
+        console.error(t("read_error"), error);
+      }
     }
 
     async function send(prefix, inputId) {
-        if (!characteristic) return;
-        const val = document.getElementById(inputId).value;
-        const data = new TextEncoder().encode(prefix + val);
-        try {
-            await characteristic.writeValue(data);
-            console.log("Išsiųsta: " + prefix + val);
-            alert(t("alert_saved"));
-        } catch (e) {
-            alert(t("alert_save_failed"));
-        }
+      if (!characteristic) return;
+      const val = document.getElementById(inputId).value;
+      const data = new TextEncoder().encode(prefix + val);
+      try {
+        await characteristic.writeValue(data);
+        console.log("Išsiųsta: " + prefix + val);
+        alert(t("alert_saved"));
+      } catch (e) {
+        alert(t("alert_save_failed"));
+      }
     }
-</script>
-
+  </script>
 </body>
 </html>
