@@ -25,20 +25,16 @@
 
     .container {
       background: var(--card);
-      padding: 60px 25px 25px 25px; /* vieta vėliavoms viršuje */
+      padding: 60px 25px 25px 25px; /* vieta vėliavoms */
       border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
       width: 100%;
       max-width: 400px;
       position: relative;
       overflow: visible;
     }
 
-    h2 {
-      text-align: center;
-      margin-top: 0;
-      color: #1a1a1a;
-    }
+    h2 { text-align: center; margin-top: 0; color: #1a1a1a; }
 
     /* --- Kalbos perjungimas --- */
     .lang-switch {
@@ -51,26 +47,30 @@
       align-items: center;
     }
 
-    .flag-img {
-      width: 38px;
-      height: 26px;
-      object-fit: cover;
-      cursor: pointer;
-      border-radius: 7px;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
-      transition: 0.15s;
+    .flag-btn {
       border: 2px solid transparent;
       background: #fff;
+      padding: 0;
+      width: 42px;
+      height: 30px;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+      transition: 0.15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
     }
 
-    .flag-img:hover {
-      transform: scale(1.06);
-    }
+    .flag-btn:hover { transform: scale(1.06); }
 
-    .flag-img.active {
+    .flag-btn.active {
       border-color: var(--primary);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.16);
     }
+
+    .flag-svg { width: 100%; height: 100%; display: block; }
 
     /* --- Status --- */
     .status-box {
@@ -83,7 +83,6 @@
       background: #ffebee;
       color: #c62828;
     }
-
     .status-box.online {
       background: #e8f5e9;
       color: #2e7d32;
@@ -115,7 +114,6 @@
       -webkit-appearance: none;
       margin-bottom: 15px;
     }
-
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
       width: 20px;
@@ -132,7 +130,7 @@
       font-size: 18px;
     }
 
-    button {
+    button.ui-btn {
       width: 100%;
       padding: 12px;
       border: none;
@@ -148,24 +146,14 @@
       color: white;
       margin-bottom: 20px;
     }
-
-    .btn-connect:active {
-      transform: scale(0.98);
-    }
+    .btn-connect:active { transform: scale(0.98); }
 
     .btn-save {
       background: var(--primary);
       color: white;
     }
-
-    .btn-save:hover {
-      background: #0056b3;
-    }
-
-    .btn-save:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
+    .btn-save:hover { background: #0056b3; }
+    .btn-save:disabled { background: #ccc; cursor: not-allowed; }
 
     .hint {
       font-size: 12px;
@@ -178,24 +166,53 @@
 
 <body>
   <div class="container">
-    <!-- Vėliavos kaip paveiksliukai -->
     <div class="lang-switch" aria-label="Language switch">
-      <!-- SVARBU: šie failai turi būti šalia HTML: lt.png ir gb.png -->
-      <img src="lt.png" id="btnLT" class="flag-img" alt="Lietuvių" title="Lietuvių" />
-      <img src="gb.png" id="btnEN" class="flag-img" alt="English" title="English" />
+      <!-- LT vėliava (SVG) -->
+      <button class="flag-btn" id="btnLT" title="Lietuvių" aria-label="Lietuvių">
+        <svg class="flag-svg" viewBox="0 0 3 2" xmlns="http://www.w3.org/2000/svg">
+          <rect width="3" height="2" fill="#BE3A34"/>
+          <rect width="3" height="1.333333" y="0" fill="#006A44"/>
+          <rect width="3" height="0.666666" y="0" fill="#FDB913"/>
+        </svg>
+      </button>
+
+      <!-- EN vėliava (SVG, supaprastinta UK) -->
+      <button class="flag-btn" id="btnEN" title="English" aria-label="English">
+        <svg class="flag-svg" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg">
+          <rect width="60" height="30" fill="#012169"/>
+          <!-- baltos įstrižainės -->
+          <path d="M0,0 L7,0 L60,23 L60,30 L53,30 L0,7 Z" fill="#FFFFFF" opacity="0.95"/>
+          <path d="M60,0 L53,0 L0,23 L0,30 L7,30 L60,7 Z" fill="#FFFFFF" opacity="0.95"/>
+          <!-- raudonos įstrižainės -->
+          <path d="M0,0 L4.5,0 L60,22.5 L60,27 L55.5,27 L0,4.5 Z" fill="#C8102E"/>
+          <path d="M60,0 L55.5,0 L0,22.5 L0,27 L4.5,27 L60,4.5 Z" fill="#C8102E"/>
+          <!-- baltas kryžius -->
+          <rect x="24" y="0" width="12" height="30" fill="#FFFFFF"/>
+          <rect x="0" y="9" width="60" height="12" fill="#FFFFFF"/>
+          <!-- raudonas kryžius -->
+          <rect x="26.5" y="0" width="7" height="30" fill="#C8102E"/>
+          <rect x="0" y="11.5" width="60" height="7" fill="#C8102E"/>
+        </svg>
+      </button>
     </div>
 
     <h2 data-i18n="title">Valdiklio Nustatymai</h2>
+
     <div id="status" class="status-box" data-i18n="status_disconnected">Neprisijungta</div>
-    <button id="connectBtn" class="btn-connect" data-i18n="connect">Prisijungti per Bluetooth</button>
+
+    <button id="connectBtn" class="ui-btn btn-connect" data-i18n="connect">
+      Prisijungti per Bluetooth
+    </button>
 
     <div class="control-group">
       <label>
         <span data-i18n="slow_speed">LĖTAS GREITIS</span>
         <span id="sDisp" class="val-display">--%</span>
       </label>
-      <input type="range" id="sRange" min="0" max="100" value="30" oninput="dUpdate('sDisp', this.value)" />
-      <button id="sBtn" class="btn-save" onclick="send('S', 'sRange')" disabled data-i18n="save">Išsaugoti</button>
+      <input type="range" id="sRange" min="0" max="100" value="30" oninput="dUpdate('sDisp', this.value)">
+      <button id="sBtn" class="ui-btn btn-save btn-save" onclick="send('S', 'sRange')" disabled data-i18n="save">
+        Išsaugoti
+      </button>
     </div>
 
     <div class="control-group">
@@ -203,8 +220,10 @@
         <span data-i18n="medium_speed">VIDUTINIS GREITIS</span>
         <span id="mDisp" class="val-display">--%</span>
       </label>
-      <input type="range" id="mRange" min="0" max="100" value="60" oninput="dUpdate('mDisp', this.value)" />
-      <button id="mBtn" class="btn-save" onclick="send('M', 'mRange')" disabled data-i18n="save">Išsaugoti</button>
+      <input type="range" id="mRange" min="0" max="100" value="60" oninput="dUpdate('mDisp', this.value)">
+      <button id="mBtn" class="ui-btn btn-save" onclick="send('M', 'mRange')" disabled data-i18n="save">
+        Išsaugoti
+      </button>
     </div>
 
     <div class="control-group">
@@ -212,8 +231,10 @@
         <span data-i18n="max_speed">MAKSIMALUS GREITIS</span>
         <span id="fDisp" class="val-display">--%</span>
       </label>
-      <input type="range" id="fRange" min="0" max="100" value="95" oninput="dUpdate('fDisp', this.value)" />
-      <button id="fBtn" class="btn-save" onclick="send('F', 'fRange')" disabled data-i18n="save">Išsaugoti</button>
+      <input type="range" id="fRange" min="0" max="100" value="95" oninput="dUpdate('fDisp', this.value)">
+      <button id="fBtn" class="ui-btn btn-save" onclick="send('F', 'fRange')" disabled data-i18n="save">
+        Išsaugoti
+      </button>
     </div>
 
     <p class="hint" data-i18n="hint">Prisijungus bus nuskaityti esami nustatymai</p>
@@ -286,7 +307,6 @@
       applyTranslations();
     }
 
-    // Load saved language (default lt)
     (function initLanguage() {
       const saved = localStorage.getItem("lang");
       if (saved === "en" || saved === "lt") currentLang = saved;
@@ -298,7 +318,6 @@
 
     // --- BLE logic ---
     let device, characteristic;
-    // UUID privalo sutapti su ESP32 kodu
     const serviceUuid = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
     const charUuid = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
 
@@ -306,7 +325,7 @@
       document.getElementById(id).innerText = val + "%";
     }
 
-    function setStatus(key, online = false) {
+    function setStatus(key, online=false) {
       const s = document.getElementById("status");
       s.setAttribute("data-status-key", key);
       s.innerText = t(key);
@@ -344,8 +363,6 @@
         const decoder = new TextDecoder("utf-8");
         const dataString = decoder.decode(value);
 
-        console.log("Gauti nustatymai: " + dataString);
-
         // Formatas iš ESP32: "S30,M60,F95"
         const parts = dataString.split(",");
         parts.forEach(part => {
@@ -366,7 +383,6 @@
       const data = new TextEncoder().encode(prefix + val);
       try {
         await characteristic.writeValue(data);
-        console.log("Išsiųsta: " + prefix + val);
         alert(t("alert_saved"));
       } catch (e) {
         alert(t("alert_save_failed"));
