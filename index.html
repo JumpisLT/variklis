@@ -27,8 +27,33 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
             width: 100%; 
             max-width: 400px; 
+            position: relative;
         }
         h2 { text-align: center; margin-top: 0; color: #1a1a1a; }
+
+        .lang-switch {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            display: flex;
+            gap: 8px;
+        }
+        .flag-btn {
+            border: 1px solid #e6e6e6;
+            background: #fff;
+            border-radius: 12px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+            transition: 0.15s;
+        }
+        .flag-btn:active { transform: scale(0.98); }
+        .flag-btn.active {
+            border-color: var(--primary);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.10);
+        }
         
         .status-box { 
             padding: 12px; 
@@ -120,32 +145,112 @@
 <body>
 
 <div class="container">
-    <h2>Valdiklio Nustatymai</h2>
-    <div id="status" class="status-box">Neprisijungta</div>
-    <button id="connectBtn" class="btn-connect">Prisijungti per Bluetooth</button>
+    <div class="lang-switch" aria-label="Language switch">
+        <button class="flag-btn" id="btnLT" title="Lietuvių" aria-label="Lietuvių">🇱🇹</button>
+        <button class="flag-btn" id="btnEN" title="English" aria-label="English">🇬🇧</button>
+    </div>
+
+    <h2 data-i18n="title">Valdiklio Nustatymai</h2>
+    <div id="status" class="status-box" data-i18n="status_disconnected">Neprisijungta</div>
+    <button id="connectBtn" class="btn-connect" data-i18n="connect">Prisijungti per Bluetooth</button>
 
     <div class="control-group">
-        <label>LĖTAS GREITIS <span id="sDisp" class="val-display">--%</span></label>
+        <label><span data-i18n="slow_speed">LĖTAS GREITIS</span> <span id="sDisp" class="val-display">--%</span></label>
         <input type="range" id="sRange" min="0" max="100" value="30" oninput="dUpdate('sDisp', this.value)">
-        <button id="sBtn" class="btn-save" onclick="send('S', 'sRange')" disabled>Išsaugoti</button>
+        <button id="sBtn" class="btn-save" onclick="send('S', 'sRange')" disabled data-i18n="save">Išsaugoti</button>
     </div>
 
     <div class="control-group">
-        <label>VIDUTINIS GREITIS <span id="mDisp" class="val-display">--%</span></label>
+        <label><span data-i18n="medium_speed">VIDUTINIS GREITIS</span> <span id="mDisp" class="val-display">--%</span></label>
         <input type="range" id="mRange" min="0" max="100" value="60" oninput="dUpdate('mDisp', this.value)">
-        <button id="mBtn" class="btn-save" onclick="send('M', 'mRange')" disabled>Išsaugoti</button>
+        <button id="mBtn" class="btn-save" onclick="send('M', 'mRange')" disabled data-i18n="save">Išsaugoti</button>
     </div>
 
     <div class="control-group">
-        <label>MAKSIMALUS GREITIS <span id="fDisp" class="val-display">--%</span></label>
+        <label><span data-i18n="max_speed">MAKSIMALUS GREITIS</span> <span id="fDisp" class="val-display">--%</span></label>
         <input type="range" id="fRange" min="0" max="100" value="95" oninput="dUpdate('fDisp', this.value)">
-        <button id="fBtn" class="btn-save" onclick="send('F', 'fRange')" disabled>Išsaugoti</button>
+        <button id="fBtn" class="btn-save" onclick="send('F', 'fRange')" disabled data-i18n="save">Išsaugoti</button>
     </div>
     
-    <p class="hint">Prisijungus bus nuskaityti esami nustatymai</p>
+    <p class="hint" data-i18n="hint">Prisijungus bus nuskaityti esami nustatymai</p>
 </div>
 
 <script>
+    // --- i18n ---
+    const I18N = {
+        lt: {
+            title: "Valdiklio Nustatymai",
+            status_disconnected: "Neprisijungta",
+            status_searching: "Ieškoma...",
+            status_connected: "PRISIJUNGTA",
+            status_connect_error: "Klaida prisijungiant",
+            connect: "Prisijungti per Bluetooth",
+            slow_speed: "LĖTAS GREITIS",
+            medium_speed: "VIDUTINIS GREITIS",
+            max_speed: "MAKSIMALUS GREITIS",
+            save: "Išsaugoti",
+            hint: "Prisijungus bus nuskaityti esami nustatymai",
+            alert_saved: "Nustatymas išsaugotas!",
+            alert_save_failed: "Nepavyko išsaugoti. Bandykite dar kartą.",
+            read_error: "Nuskaitymo klaida:"
+        },
+        en: {
+            title: "Controller Settings",
+            status_disconnected: "Disconnected",
+            status_searching: "Searching...",
+            status_connected: "CONNECTED",
+            status_connect_error: "Connection error",
+            connect: "Connect via Bluetooth",
+            slow_speed: "SLOW SPEED",
+            medium_speed: "MEDIUM SPEED",
+            max_speed: "MAX SPEED",
+            save: "Save",
+            hint: "After connecting, current settings will be read",
+            alert_saved: "Setting saved!",
+            alert_save_failed: "Could not save. Please try again.",
+            read_error: "Read error:"
+        }
+    };
+
+    let currentLang = "lt";
+
+    function t(key) {
+        return (I18N[currentLang] && I18N[currentLang][key]) ? I18N[currentLang][key] : key;
+    }
+
+    function applyTranslations() {
+        document.querySelectorAll("[data-i18n]").forEach(el => {
+            const key = el.getAttribute("data-i18n");
+            el.textContent = t(key);
+        });
+        document.documentElement.lang = currentLang;
+        document.getElementById("btnLT").classList.toggle("active", currentLang === "lt");
+        document.getElementById("btnEN").classList.toggle("active", currentLang === "en");
+    }
+
+    function setLanguage(lang) {
+        currentLang = (lang === "en") ? "en" : "lt";
+        localStorage.setItem("lang", currentLang);
+
+        // If status is currently one of our known states, re-translate it
+        const statusEl = document.getElementById("status");
+        const raw = statusEl.getAttribute("data-status-key");
+        if (raw) statusEl.textContent = t(raw);
+
+        applyTranslations();
+    }
+
+    // Load saved language (default lt)
+    (function initLanguage() {
+        const saved = localStorage.getItem("lang");
+        if (saved === "en" || saved === "lt") currentLang = saved;
+        applyTranslations();
+    })();
+
+    document.getElementById("btnLT").addEventListener("click", () => setLanguage("lt"));
+    document.getElementById("btnEN").addEventListener("click", () => setLanguage("en"));
+
+    // --- BLE logic ---
     let device, characteristic;
     // UUID privalo sutapti su ESP32 kodu
     const serviceUuid = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
@@ -155,9 +260,17 @@
         document.getElementById(id).innerText = val + "%"; 
     }
 
+    function setStatus(key, online=false) {
+        const s = document.getElementById('status');
+        s.setAttribute("data-status-key", key);
+        s.innerText = t(key);
+        s.classList.toggle('online', !!online);
+    }
+
     document.getElementById('connectBtn').onclick = async () => {
         try {
-            document.getElementById('status').innerText = "Ieškoma...";
+            setStatus("status_searching", false);
+
             device = await navigator.bluetooth.requestDevice({
                 filters: [{ name: 'Variklio_Valdiklis' }],
                 optionalServices: [serviceUuid]
@@ -168,9 +281,7 @@
             characteristic = await service.getCharacteristic(charUuid);
             
             // Atnaujiname sąsają
-            const s = document.getElementById('status');
-            s.innerText = "PRISIJUNGTA";
-            s.classList.add('online');
+            setStatus("status_connected", true);
             document.getElementById('connectBtn').style.display = 'none';
             
             // Atitinkame išsaugojimo mygtukus
@@ -181,7 +292,7 @@
 
         } catch (error) {
             console.error(error);
-            document.getElementById('status').innerText = "Klaida prisijungiant";
+            setStatus("status_connect_error", false);
         }
     };
 
@@ -204,7 +315,7 @@
                 if (type === 'F') { document.getElementById('fRange').value = val; dUpdate('fDisp', val); }
             });
         } catch (error) {
-            console.error("Nuskaitymo klaida:", error);
+            console.error(t("read_error"), error);
         }
     }
 
@@ -215,9 +326,9 @@
         try {
             await characteristic.writeValue(data);
             console.log("Išsiųsta: " + prefix + val);
-            alert("Nustatymas išsaugotas!");
+            alert(t("alert_saved"));
         } catch (e) {
-            alert("Nepavyko išsaugoti. Bandykite dar kartą.");
+            alert(t("alert_save_failed"));
         }
     }
 </script>
